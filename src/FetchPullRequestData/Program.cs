@@ -14,12 +14,12 @@ namespace FetchPullRequestData
     /// </example>
     class Program
     {
-        static async Task Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             var parserResult = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
-            await parserResult.MapResult(
-                options =>
+            return await parserResult.MapResult(
+                async options =>
                 {
                     var restClient = new RestClient(
                         organizationUri: new Uri(options.Url, UriKind.Absolute),
@@ -28,17 +28,19 @@ namespace FetchPullRequestData
                     var outputDirectory = options.OutputDirectory ?? CommandLineOptions.DefaultOutputDirectory;
                     var outputFileStore = new DataFileStore(outputDirectory);
 
-                    return FetchDataFilesAsync(
+                    await FetchDataFilesAsync(
                         restClient,
                         outputFileStore,
                         project: options.Project,
                         repository: options.Repository,
                         count: options.Count);
+
+                    return 0;
                 },
                 errors =>
                 {
                     // ParseArguments will already print an error message when failing to parse
-                    return Task.CompletedTask;
+                    return Task.FromResult(1);
                 });
         }
 
