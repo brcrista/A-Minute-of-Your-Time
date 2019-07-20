@@ -6,6 +6,12 @@ using Newtonsoft.Json;
 
 namespace ApiTool
 {
+    /// <example>
+    /// Run like
+    /// <code>
+    /// dotnet FetchPullRequests.dll --url https://dev.azure.com/my-org --project MyProject --pat ***** --repository RepositoryName --count 1000
+    /// </code>
+    /// </example>
     class Program
     {
         static async Task Main(string[] args)
@@ -26,7 +32,8 @@ namespace ApiTool
                         restClient,
                         outputFileStore,
                         project: options.Project,
-                        repository: options.Repository);
+                        repository: options.Repository,
+                        count: options.Count);
                 },
                 errors =>
                 {
@@ -39,15 +46,24 @@ namespace ApiTool
             RestClient restClient,
             DataFileStore outputFileStore,
             string project,
-            string repository)
+            string repository,
+            int count)
         {
+            Console.WriteLine($"Fetching {count} pull requests for repository {repository} ...");
             var pullRequests = await restClient.GetPullRequestsAsync(
-                project: project,
-                repository: repository);
+                project,
+                repository,
+                count);
+            Console.WriteLine("Done.");
+            Console.WriteLine();
 
+            var outputFile = "pull-requests.json";
+            Console.WriteLine($"Writing output to {outputFile} ...");
             await outputFileStore.WriteFileAsync(
-                filename: "pull-requests.json",
+                filename: outputFile,
                 content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented));
+            Console.WriteLine("Done.");
+            Console.WriteLine();
         }
     }
 }

@@ -13,6 +13,9 @@ namespace ApiTool
         [Option("repository", Required = true, HelpText = "The name of the repository.")]
         public string Repository { get; set; }
 
+        [Option("count", Required = true, HelpText = "The number of pull requests to fetch.")]
+        public int Count { get; set; }
+
         [Option("pat", HelpText = "A personal access token with the appropriate scopes for the operation (if the project is not public).")]
         public string PersonalAccessToken { get; set; }
 

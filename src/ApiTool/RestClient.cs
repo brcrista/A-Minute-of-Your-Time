@@ -24,7 +24,7 @@ namespace ApiTool
                     password: pat ?? string.Empty));
         }
 
-        public Task<List<GitPullRequest>> GetPullRequestsAsync(string project, string repository)
+        public Task<List<GitPullRequest>> GetPullRequestsAsync(string project, string repository, int count)
         {
             var searchCriteria = new GitPullRequestSearchCriteria
             {
@@ -37,7 +37,7 @@ namespace ApiTool
                 project,
                 repository,
                 searchCriteria,
-                top: 10);
+                top: count);
         }
 
         public Task<GitPullRequest> GetPullRequestAsync(string project, string repository, int pullRequestId)
