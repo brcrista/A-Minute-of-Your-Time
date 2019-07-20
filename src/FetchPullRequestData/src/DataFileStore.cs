@@ -34,14 +34,5 @@ namespace FetchPullRequestData
                 path: targetFile,
                 contents: content);
         }
-
-        /// <summary>
-        /// Indicates whether a file with the given name exists in the store.
-        /// </summary>
-        public bool Contains(string filename)
-        {
-            return File.Exists(
-                path: Path.Combine(outputDirectory, filename));
-        }
     }
 }

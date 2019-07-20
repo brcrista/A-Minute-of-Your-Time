@@ -39,14 +39,5 @@ namespace FetchPullRequestData
                 searchCriteria,
                 top: count);
         }
-
-        public Task<GitPullRequest> GetPullRequestAsync(string project, string repository, int pullRequestId)
-        {
-            var httpClient = connection.GetClient<GitHttpClient>();
-            return httpClient.GetPullRequestAsync(
-                project,
-                repository,
-                pullRequestId);
-        }
     }
 }
