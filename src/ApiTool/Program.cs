@@ -15,16 +15,17 @@ namespace ApiTool
             await parserResult.MapResult(
                 async options =>
                 {
-                    var client = new RestClient(
+                    var restClient = new RestClient(
                         organizationUri: new Uri(options.Url, UriKind.Absolute),
                         pat: options.PersonalAccessToken);
 
-                    var pullRequests = await client.GetPullRequestsAsync(
+                    var outputDirectory = options.OutputDirectory ?? CommandLineOptions.DefaultOutputDirectory;
+                    var outputFileStore = new DataFileStore(outputDirectory);
+
+                    var pullRequests = await restClient.GetPullRequestsAsync(
                         project: options.Project,
                         repository: options.Repository);
 
-                    var outputDirectory = options.OutputDirectory ?? CommandLineOptions.DefaultOutputDirectory;
-                    var outputFileStore = new DataFileStore(outputDirectory);
                     await outputFileStore.WriteFileAsync(
                         filename: "pull-requests/list.json",
                         content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented));
@@ -35,8 +36,14 @@ namespace ApiTool
 
                     foreach (var pullRequestId in pullRequestIds)
                     {
-                        // TODO
-                        Console.WriteLine($"Fetched new PR {pullRequestId}");
+                        var pullRequest = await restClient.GetPullRequestAsync(
+                            project: options.Project,
+                            repository: options.Repository,
+                            pullRequestId: pullRequestId);
+
+                        await outputFileStore.WriteFileAsync(
+                            filename: $"pull-requests/{pullRequestId.ToString()}.json",
+                            content: JsonConvert.SerializeObject(pullRequest, Formatting.Indented));
                     }
                 },
                 errors =>

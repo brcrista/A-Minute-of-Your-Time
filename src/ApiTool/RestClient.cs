@@ -24,7 +24,7 @@ namespace ApiTool
                     password: pat ?? string.Empty));
         }
 
-        public async Task<List<GitPullRequest>> GetPullRequestsAsync(string project, string repository)
+        public Task<List<GitPullRequest>> GetPullRequestsAsync(string project, string repository)
         {
             var searchCriteria = new GitPullRequestSearchCriteria
             {
@@ -33,11 +33,20 @@ namespace ApiTool
             };
 
             var httpClient = connection.GetClient<GitHttpClient>();
-            return await httpClient.GetPullRequestsAsync(
+            return httpClient.GetPullRequestsAsync(
                 project,
                 repository,
                 searchCriteria,
                 top: 10);
+        }
+
+        public Task<GitPullRequest> GetPullRequestAsync(string project, string repository, int pullRequestId)
+        {
+            var httpClient = connection.GetClient<GitHttpClient>();
+            return httpClient.GetPullRequestAsync(
+                project,
+                repository,
+                pullRequestId);
         }
     }
 }
