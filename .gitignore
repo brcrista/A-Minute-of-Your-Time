@@ -4,5 +4,6 @@ obj/
 
 *.dll
 *.exe
+*.ipynb_checkpoints
 *proj.user
 *.pyc
