@@ -1,0 +1,9 @@
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-16.04
+
+steps:
+- script: dotnet build src/FetchPullRequestData --configuration Release
+  displayName: dotnet build $(buildConfiguration)
