@@ -8,6 +8,9 @@ using Microsoft.VisualStudio.Services.WebApi;
 
 namespace ApiTool
 {
+    /// <summary>
+    /// Manages calls to the Azure DevOps REST API.
+    /// </summary>
     class RestClient
     {
         private readonly VssConnection connection;

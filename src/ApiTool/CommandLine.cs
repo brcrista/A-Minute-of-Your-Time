@@ -15,5 +15,10 @@ namespace ApiTool
 
         [Option("pat", HelpText = "A personal access token with the appropriate scopes for the operation (if the project is not public).")]
         public string PersonalAccessToken { get; set; }
+
+        [Option("outdir", HelpText = "The directory where output files will be written. Defaults to 'output'.")]
+        public string OutputDirectory { get; set; }
+
+        public static readonly string DefaultOutputDirectory = "output";
     }
 }
