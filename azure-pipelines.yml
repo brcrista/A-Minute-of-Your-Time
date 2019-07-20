@@ -10,7 +10,7 @@ jobs:
   - script: dotnet build src/FetchPullRequestData --configuration Release
     displayName: dotnet build FetchPullRequestData
 
-- job: EDA
+- job: DataAnalysis
   pool:
     vmImage: ubuntu-16.04
 
@@ -18,7 +18,7 @@ jobs:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: Add conda to PATH
 
-  - script: conda update -n base -c defaults conda
+  - script: conda update conda --yes --name base
     displayName: Update to latest conda
 
   - script: conda env create --quiet --file environment.yml
