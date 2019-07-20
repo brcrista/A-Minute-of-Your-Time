@@ -6,4 +6,4 @@ pool:
 
 steps:
 - script: dotnet build src/FetchPullRequestData --configuration Release
-  displayName: dotnet build $(buildConfiguration)
+  displayName: dotnet build FetchPullRequestData
