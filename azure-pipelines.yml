@@ -21,10 +21,10 @@ jobs:
   - script: conda update conda --yes --name base
     displayName: Update to latest conda
 
-  - script: conda env create --quiet --file environment.yml
+  - script: conda env create --file environment.yml
     displayName: Create conda environment
 
   - script: |
       source activate a-minute-of-your-time
-      jupyter nbconvert --to notebook --execute data-analysis.ipynb
+      jupyter nbconvert --to notebook --execute src/data-analysis/data-analysis.ipynb
     displayName: Execute Jupyter notebook
