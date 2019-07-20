@@ -9,6 +9,27 @@ Addressing all the feedback on a big PR can be frustrating for you, and it makes
 Even when a large change is necessary, having an accurate estimate of how long it will take to get through review will help set expectations and reduce the risk of missing deadlines.
 
 ## Instructions
+### Requirements
+* .NET Core 2.2 or later
+* Miniconda with Python 3.7 or later
+
+(Older versions may work, but I haven't tested them.)
+
+### First-time setup
+Create the conda environment on your system:
+
+```bash
+conda env create -f environment.yml
+```
+
+After doing this once, activate the environment with:
+
+```bash
+conda activate a-minute-of-your-time
+```
+
+(**Note:** conda environments don't work in PowerShell.)
+
 ### Fetching pull request data from your repo
 Build the `FetchPullRequestData` tool:
 
@@ -25,6 +46,14 @@ dotnet FetchPullRequestData.dll --url https://dev.azure.com/my-org --project MyP
 
 The output will be in a directory called `./output`.
 You can change this by passing the `--outdir` argument.
+
+### Data analysis
+Run the Jupyter notebook for data analysis:
+
+```bash
+cd src/data-analysis
+jupyter lab data-analysis.ipynb
+```
 
 ## TODO
 - [x] Make a tool to get data from the Azure Repos REST API

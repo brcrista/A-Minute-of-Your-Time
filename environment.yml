@@ -1,0 +1,10 @@
+name: a-minute-of-your-time
+channels:
+  - conda-forge
+dependencies:
+  - ipython
+  - jupyter
+  - jupyterlab
+  - matplotlib
+  - numpy
+  - pandas

@@ -1,9 +1,30 @@
 trigger:
 - master
 
-pool:
-  vmImage: ubuntu-16.04
+jobs:
+- job: FetchPullRequestData
+  pool:
+    vmImage: ubuntu-16.04
 
-steps:
-- script: dotnet build src/FetchPullRequestData --configuration Release
-  displayName: dotnet build FetchPullRequestData
+  steps:
+  - script: dotnet build src/FetchPullRequestData --configuration Release
+    displayName: dotnet build FetchPullRequestData
+
+- job: DataAnalysis
+  pool:
+    vmImage: ubuntu-16.04
+
+  steps:
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+
+  - script: conda update conda --yes --name base
+    displayName: Update to latest conda
+
+  - script: conda env create --file environment.yml
+    displayName: Create conda environment
+
+  - script: |
+      source activate a-minute-of-your-time
+      jupyter nbconvert --to notebook --execute src/data-analysis/data-analysis.ipynb
+    displayName: Execute Jupyter notebook
