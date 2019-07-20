@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using Microsoft.VisualStudio.Services.WebApi;
-
-using Newtonsoft.Json;
 
 namespace ApiTool
 {
@@ -22,21 +21,20 @@ namespace ApiTool
                     password: pat ?? string.Empty));
         }
 
-        public async Task<string> GetPullRequestsAsync(string project, string repository)
+        public async Task<List<GitPullRequest>> GetPullRequestsAsync(string project, string repository)
         {
             var searchCriteria = new GitPullRequestSearchCriteria
             {
-                Status = PullRequestStatus.Completed
+                Status = PullRequestStatus.Completed,
+                TargetRefName = "refs/heads/master"
             };
 
             var httpClient = connection.GetClient<GitHttpClient>();
-            var pullRequests = await httpClient.GetPullRequestsAsync(
+            return await httpClient.GetPullRequestsAsync(
                 project,
                 repository,
                 searchCriteria,
-                top: 1000);
-
-            return JsonConvert.SerializeObject(pullRequests, Formatting.Indented);
+                top: 10);
         }
     }
 }

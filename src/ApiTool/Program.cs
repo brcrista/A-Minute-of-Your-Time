@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CommandLine;
+using Newtonsoft.Json;
 
 namespace ApiTool
 {
@@ -21,7 +22,8 @@ namespace ApiTool
                         project: options.Project,
                         repository: options.Repository);
 
-                    Console.WriteLine(pullRequests);
+                    var json = JsonConvert.SerializeObject(pullRequests, Formatting.Indented);
+                    Console.WriteLine(json);
                 },
                 errors =>
                 {
