@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ApiTool
 {
@@ -25,14 +26,11 @@ namespace ApiTool
         /// </summary>
         /// <param name="filename">Relative path to the file from the output directory.</param>
         /// <param name="content">Content to write to the file.</param>
-        public void WriteFile(string filename, string content)
+        public async Task WriteFileAsync(string filename, string content)
         {
             var targetFile = Path.Combine(outputDirectory, filename);
 
-            Directory.CreateDirectory(
-                path: Path.GetDirectoryName(targetFile));
-
-            File.WriteAllText(
+            await FileHelper.WriteFileAsync(
                 path: targetFile,
                 contents: content);
         }

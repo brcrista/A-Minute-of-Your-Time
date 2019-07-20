@@ -25,7 +25,7 @@ namespace ApiTool
 
                     var outputDirectory = options.OutputDirectory ?? CommandLineOptions.DefaultOutputDirectory;
                     var outputFileStore = new DataFileStore(outputDirectory);
-                    outputFileStore.WriteFile(
+                    await outputFileStore.WriteFileAsync(
                         filename: "pull-requests/list.json",
                         content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented));
 
