@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace ApiTool
+namespace FetchPullRequestData
 {
     /// <summary>
     /// Persists content received from an external service.

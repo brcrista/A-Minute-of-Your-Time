@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using CommandLine;
 using Newtonsoft.Json;
 
-namespace ApiTool
+namespace FetchPullRequestData
 {
     /// <example>
     /// Run like
     /// <code>
-    /// dotnet FetchPullRequests.dll --url https://dev.azure.com/my-org --project MyProject --pat ***** --repository RepositoryName --count 1000
+    /// dotnet FetchPullRequestData.dll --url https://dev.azure.com/my-org --project MyProject --pat ***** --repository RepositoryName --count 1000
     /// </code>
     /// </example>
     class Program

@@ -6,7 +6,7 @@ using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using Microsoft.VisualStudio.Services.WebApi;
 
-namespace ApiTool
+namespace FetchPullRequestData
 {
     /// <summary>
     /// Manages calls to the Azure DevOps REST API.

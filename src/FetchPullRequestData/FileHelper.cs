@@ -2,7 +2,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiTool
+namespace FetchPullRequestData
 {
     static class FileHelper
     {
