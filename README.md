@@ -11,14 +11,13 @@ Even when a large change is necessary, having an accurate estimate of how long i
 Build the `FetchPullRequestData` tool:
 
 ```bash
-cd src/FetchPullRequestData
-dotnet build
+cd src
+dotnet build FetchPullRequestData
 ```
 
 Navigate to the `bin` directory and run the tool:
 
 ```bash
-cd bin
 dotnet FetchPullRequestData.dll --url https://dev.azure.com/my-org --project MyProject --pat ***** --repository RepositoryName --count 1000
 ```
 
