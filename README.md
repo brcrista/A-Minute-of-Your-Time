@@ -1,5 +1,7 @@
 # A Minute of Your Time
 
+[![Build Status](https://dev.azure.com/brcrista/A%20Minute%20of%20Your%20Time/_apis/build/status/A-Minute-of-Your-Time?branchName=master)](https://dev.azure.com/brcrista/A%20Minute%20of%20Your%20Time/_build/latest?definitionId=122&branchName=master)
+
 ![mockup-of-pull-request-notification](docs/images/hackathon-2019.png)
 
 Having a pull request stuck in review for days on end is never fun.
