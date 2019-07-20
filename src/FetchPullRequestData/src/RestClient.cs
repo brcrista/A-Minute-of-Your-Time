@@ -11,7 +11,7 @@ namespace FetchPullRequestData
     /// <summary>
     /// Manages calls to the Azure DevOps REST API.
     /// </summary>
-    class RestClient
+    sealed class RestClient
     {
         private readonly VssConnection connection;
 
@@ -38,15 +38,6 @@ namespace FetchPullRequestData
                 repository,
                 searchCriteria,
                 top: count);
-        }
-
-        public Task<GitPullRequest> GetPullRequestAsync(string project, string repository, int pullRequestId)
-        {
-            var httpClient = connection.GetClient<GitHttpClient>();
-            return httpClient.GetPullRequestAsync(
-                project,
-                repository,
-                pullRequestId);
         }
     }
 }

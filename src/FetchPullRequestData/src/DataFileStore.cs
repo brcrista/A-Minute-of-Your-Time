@@ -6,7 +6,7 @@ namespace FetchPullRequestData
     /// <summary>
     /// Persists content received from an external service.
     /// </summary>
-    class DataFileStore
+    sealed class DataFileStore
     {
         private readonly string outputDirectory;
 
@@ -33,15 +33,6 @@ namespace FetchPullRequestData
             await FileHelper.WriteFileAsync(
                 path: targetFile,
                 contents: content);
-        }
-
-        /// <summary>
-        /// Indicates whether a file with the given name exists in the store.
-        /// </summary>
-        public bool Contains(string filename)
-        {
-            return File.Exists(
-                path: Path.Combine(outputDirectory, filename));
         }
     }
 }
