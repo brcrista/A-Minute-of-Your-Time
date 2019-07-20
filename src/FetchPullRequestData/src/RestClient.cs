@@ -11,7 +11,7 @@ namespace FetchPullRequestData
     /// <summary>
     /// Manages calls to the Azure DevOps REST API.
     /// </summary>
-    class RestClient
+    sealed class RestClient
     {
         private readonly VssConnection connection;
 

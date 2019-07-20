@@ -12,7 +12,7 @@ namespace FetchPullRequestData
     /// dotnet FetchPullRequestData.dll --url https://dev.azure.com/my-org --project MyProject --pat ***** --repository RepositoryName --count 1000
     /// </code>
     /// </example>
-    class Program
+    static class Program
     {
         static async Task<int> Main(string[] args)
         {

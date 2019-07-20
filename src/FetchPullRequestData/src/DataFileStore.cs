@@ -6,7 +6,7 @@ namespace FetchPullRequestData
     /// <summary>
     /// Persists content received from an external service.
     /// </summary>
-    class DataFileStore
+    sealed class DataFileStore
     {
         private readonly string outputDirectory;
 

@@ -2,7 +2,7 @@
 
 namespace FetchPullRequestData
 {
-    class CommandLineOptions
+    sealed class CommandLineOptions
     {
         [Option("url", Required = true, HelpText = "The URL for the Azure DevOps organization. For example, https://dev.azure.com/mseng.")]
         public string Url { get; set; }
