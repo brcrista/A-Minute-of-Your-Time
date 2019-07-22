@@ -57,7 +57,7 @@ jupyter lab data-analysis.ipynb
 
 ## TODO
 - [x] Make a tool to get data from the Azure Repos REST API
-- [ ] Write a script to process this data to be consumed from Python
+- [x] Write a script to process this data to be consumed from Python
 - [ ] Create a Python script that runs exploratory data analysis on the dataset, consumable as a Jupyter notebook
 - [ ] Train machine learning models to predict the time to review a new pull request
 - [ ] Automate the whole thing end-to-end
