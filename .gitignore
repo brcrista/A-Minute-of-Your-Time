@@ -1,9 +1,14 @@
+# Python
+.ipynb_checkpoints/
+.pytest_cache/
+*.nbconvert.ipynb
+*.pyc
+
+# .NET
 .vs/
 bin/
 obj/
 
 *.dll
 *.exe
-*.ipynb_checkpoints
 *proj.user
-*.pyc

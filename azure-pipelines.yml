@@ -26,5 +26,16 @@ jobs:
 
   - script: |
       source activate a-minute-of-your-time
+      pytest src/data-analysis --junitxml=junit/test-results.xml
+    displayName: Test data analysis scripts
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFiles: '**/test-*.xml'
+      testRunTitle: Publish test results for data analysis scripts
+
+  - script: |
+      source activate a-minute-of-your-time
       jupyter nbconvert --to notebook --execute src/data-analysis/data-analysis.ipynb
     displayName: Execute Jupyter notebook

@@ -1,0 +1,12 @@
+[
+    {
+        "message": "This is a placeholder file for executing data analysis scripts during CI.",
+        "pullRequestId": 123,
+        "createdBy": {
+            "displayName": "..."
+        },
+        "creationDate": "2019-07-22T08:43:56.5704271Z",
+        "closedDate": "2019-07-22T12:59:15.1064069Z",
+        "reviewers": []
+    }
+]
