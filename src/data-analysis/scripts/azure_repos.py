@@ -1,6 +1,7 @@
 import dateutil
 import json
 
+import faker
 import pandas as pd
 
 from . import text_helpers
@@ -17,17 +18,28 @@ def _read_json_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as pull_requests_json_file:
         return json.load(pull_requests_json_file, object_hook=lambda d: text_helpers.remap_keys(_ensure_camel, d))
 
+_fake_authors = {}
+_faker = faker.Faker()
+
 # Create a data frame of pull requests
 def _get_data_from_pull_request(pull_request):
     """
     Extract the information we want to process from a pull request API object.
     """
+    # Translate the author to a fake name
+    real_author = pull_request['createdBy']['displayName']
+    if real_author in _fake_authors:
+        fake_author = _fake_authors[real_author]
+    else:
+        fake_author = _faker.name()
+        _fake_authors[real_author] = fake_author
+
     return [
-        pull_request['pullRequestId'],
-        pull_request['createdBy']['displayName'],
-        dateutil.parser.parse(pull_request['creationDate']),
-        dateutil.parser.parse(pull_request['closedDate']),
-        len(pull_request['reviewers'])
+        pull_request['pullRequestId'], # id
+        fake_author, # author
+        dateutil.parser.parse(pull_request['creationDate']), # created_time
+        dateutil.parser.parse(pull_request['closedDate']), # merged_time
+        len(pull_request['reviewers']) # num_reviewers
     ]
 
 def load_data(filepath):
