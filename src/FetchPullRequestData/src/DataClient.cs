@@ -91,14 +91,19 @@ namespace FetchPullRequestData
         {
             var pullRequestId = pullRequest.PullRequestId;
             var outputFile = $"{pullRequestId.ToString()}-changes.json";
+            var mergeCommitId = pullRequest.LastMergeCommit?.CommitId;
 
-            if (outputFileStore.Contains(outputFile))
+            if (mergeCommitId == null)
+            {
+                // A completed PR won't merge if the commit is already in the target branch
+                info.Trace($"{pullRequestId} has no merge commit.");
+            }
+            else if (outputFileStore.Contains(outputFile))
             {
                 info.Trace($"{outputFile} already exists. Skipping call to the API.");
             }
             else
             {
-                var mergeCommitId = pullRequest.LastMergeCommit.CommitId;
                 info.Trace($"Fetching changes for commit {mergeCommitId.ToString()} ...");
                 var changes = await gitClient.GetChangesAsync(
                     project,
