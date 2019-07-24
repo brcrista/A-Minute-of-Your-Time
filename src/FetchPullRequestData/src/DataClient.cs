@@ -32,17 +32,16 @@ namespace FetchPullRequestData
             int count)
         {
             // Get the list of all pull requests
-            var pullRequests = await info.TraceOperation(
-                $"Fetching {count} pull requests for repository {repositoryId} ...",
-                () => gitClient.GetPullRequestsAsync(
-                    project,
-                    repositoryId,
-                    searchCriteria: new GitPullRequestSearchCriteria
-                    {
-                        Status = PullRequestStatus.Completed,
-                        TargetRefName = "refs/heads/master"
-                    },
-                    top: count));
+            info.Trace($"Fetching {count} pull requests for repository {repositoryId} ...");
+            var pullRequests = await gitClient.GetPullRequestsAsync(
+                project,
+                repositoryId,
+                searchCriteria: new GitPullRequestSearchCriteria
+                {
+                    Status = PullRequestStatus.Completed,
+                    TargetRefName = "refs/heads/master"
+                },
+                top: count);
 
             if (pullRequests.Count < count)
             {
@@ -50,11 +49,10 @@ namespace FetchPullRequestData
             }
 
             var outputFile = "pull-requests.json";
-            await info.TraceOperation(
-                $"Writing output to {outputFile} ...",
-                () => outputFileStore.WriteFileAsync(
-                    filename: outputFile,
-                    content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented)));
+            info.Trace($"Writing output to {outputFile} ...");
+            await outputFileStore.WriteFileAsync(
+                filename: outputFile,
+                content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented));
 
             return pullRequests;
         }
@@ -73,18 +71,16 @@ namespace FetchPullRequestData
             }
             else
             {
-                var iterations = await info.TraceOperation(
-                    $"Fetching iterations for pull request {pullRequestId.ToString()} ...",
-                    () => gitClient.GetPullRequestIterationsAsync(
-                        project,
-                        repositoryId,
-                        pullRequestId));
+                info.Trace($"Fetching iterations for pull request {pullRequestId.ToString()} ...");
+                var iterations = await gitClient.GetPullRequestIterationsAsync(
+                    project,
+                    repositoryId,
+                    pullRequestId);
 
-                await info.TraceOperation(
-                    $"Writing output to {outputFile} ...",
-                    () => outputFileStore.WriteFileAsync(
-                        filename: outputFile,
-                        content: JsonConvert.SerializeObject(iterations, Formatting.Indented)));
+                info.Trace($"Writing output to {outputFile} ...");
+                await outputFileStore.WriteFileAsync(
+                    filename: outputFile,
+                    content: JsonConvert.SerializeObject(iterations, Formatting.Indented));
             }
         }
 
@@ -103,18 +99,16 @@ namespace FetchPullRequestData
             else
             {
                 var mergeCommitId = pullRequest.LastMergeCommit.CommitId;
-                var changes = await info.TraceOperation(
-                    $"Fetching changes for commit {mergeCommitId.ToString()} ...",
-                    () => gitClient.GetChangesAsync(
-                        project,
-                        commitId: mergeCommitId,
-                        repositoryId: repositoryId));
+                info.Trace($"Fetching changes for commit {mergeCommitId.ToString()} ...");
+                var changes = await gitClient.GetChangesAsync(
+                    project,
+                    commitId: mergeCommitId,
+                    repositoryId: repositoryId);
 
-                    await info.TraceOperation(
-                        $"Writing output to {outputFile} ...",
-                        () => outputFileStore.WriteFileAsync(
-                            filename: outputFile,
-                            content: JsonConvert.SerializeObject(changes, Formatting.Indented)));
+                info.Trace($"Writing output to {outputFile} ...");
+                await outputFileStore.WriteFileAsync(
+                    filename: outputFile,
+                    content: JsonConvert.SerializeObject(changes, Formatting.Indented));
             }
         }
     }
