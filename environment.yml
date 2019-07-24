@@ -8,4 +8,7 @@ dependencies:
   - matplotlib
   - numpy
   - pandas
+  - pip
   - pytest
+  - pip:
+    - Faker
