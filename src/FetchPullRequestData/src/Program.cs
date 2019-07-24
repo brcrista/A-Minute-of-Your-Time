@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
 using CommandLine;
-using Newtonsoft.Json;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.VisualStudio.Services.WebApi;
 
 namespace FetchPullRequestData
 {
@@ -21,18 +24,22 @@ namespace FetchPullRequestData
             return await parserResult.MapResult(
                 async options =>
                 {
-                    var restClient = new RestClient(
-                        organizationUri: new Uri(options.Url, UriKind.Absolute),
-                        pat: options.PersonalAccessToken);
+                    var connection = new VssConnection(
+                        baseUrl: new Uri(options.Url, UriKind.Absolute),
+                        credentials: new VssBasicCredential(
+                            userName: string.Empty,
+                            password: options.PersonalAccessToken ?? string.Empty));
 
                     var outputDirectory = options.OutputDirectory ?? CommandLineOptions.DefaultOutputDirectory;
-                    var outputFileStore = new DataFileStore(outputDirectory);
+
+                    var dataClient = new DataClient(
+                        gitClient: connection.GetClient<GitHttpClient>(),
+                        outputFileStore: new DataFileStore(outputDirectory));
 
                     await FetchDataFilesAsync(
-                        restClient,
-                        outputFileStore,
+                        dataClient,
                         project: options.Project,
-                        repository: options.Repository,
+                        repositoryId: options.Repository,
                         count: options.Count);
 
                     return 0;
@@ -44,59 +51,30 @@ namespace FetchPullRequestData
                 });
         }
 
-        private static async Task FetchDataFilesAsync(
-            RestClient restClient,
-            DataFileStore outputFileStore,
+        static async Task FetchDataFilesAsync(
+            DataClient dataClient,
             string project,
-            string repository,
+            string repositoryId,
             int count)
         {
-            var info = new Tracer(Console.WriteLine);
-            var error = new Tracer(Console.Error.WriteLine);
+            // Fetch the list of PRs
+            var pullRequests = await dataClient.FetchPullRequestsAsync(
+                project,
+                repositoryId,
+                count);
 
-            // Get the list of all pull requests
-            var pullRequests = await info.TraceOperation(
-                $"Fetching {count} pull requests for repository {repository} ...",
-                () => restClient.GetPullRequestsAsync(
+            // Fetch additional information for each PR
+            foreach (var pr in pullRequests)
+            {
+                await dataClient.FetchIterationsAsync(
                     project,
-                    repository,
-                    count));
+                    repositoryId,
+                    pr);
 
-            if (pullRequests.Count < count)
-            {
-                error.Trace($"Requested {count} pull requests, but only {pullRequests.Count} were received.");
-            }
-
-            var outputFile = "pull-requests.json";
-            await info.TraceOperation(
-                $"Writing output to {outputFile} ...",
-                () => outputFileStore.WriteFileAsync(
-                    filename: outputFile,
-                    content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented)));
-
-            // Get info for each pull request
-            foreach (var id in pullRequests.Select(x => x.PullRequestId))
-            {
-                outputFile = $"{id.ToString()}-iterations.json";
-                if (outputFileStore.Contains(outputFile))
-                {
-                    info.Trace($"{outputFile} already exists. Skipping call to the API.");
-                }
-                else
-                {
-                    var iterations = await info.TraceOperation(
-                        $"Fetching pull request {id.ToString()} ...",
-                        () => restClient.GetPullRequestIterationsAsync(
-                            project,
-                            repository,
-                            id));
-
-                    await info.TraceOperation(
-                        $"Writing output to {outputFile} ...",
-                        () => outputFileStore.WriteFileAsync(
-                            filename: outputFile,
-                            content: JsonConvert.SerializeObject(iterations, Formatting.Indented)));
-                }
+                await dataClient.FetchPullRequestChangesAsync(
+                    project,
+                    repositoryId,
+                    pr);
             }
         }
     }

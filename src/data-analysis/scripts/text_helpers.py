@@ -9,7 +9,7 @@ def camel(s: str) -> str:
     Convert an alphanumeric string to camel case.
     """
     if not s.isalnum():
-        raise ValueError(f"'{s}' is not an alphanumeric string")
+        return s
     return s[0].lower() + s[1:]
 
 def remap_keys(key_func, d):
