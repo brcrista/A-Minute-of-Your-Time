@@ -51,21 +51,53 @@ namespace FetchPullRequestData
             string repository,
             int count)
         {
-            Console.WriteLine($"Fetching {count} pull requests for repository {repository} ...");
-            var pullRequests = await restClient.GetPullRequestsAsync(
-                project,
-                repository,
-                count);
-            Console.WriteLine("Done.");
-            Console.WriteLine();
+            var info = new Tracer(Console.WriteLine);
+            var error = new Tracer(Console.Error.WriteLine);
+
+            // Get the list of all pull requests
+            var pullRequests = await info.TraceOperation(
+                $"Fetching {count} pull requests for repository {repository} ...",
+                () => restClient.GetPullRequestsAsync(
+                    project,
+                    repository,
+                    count));
+
+            if (pullRequests.Count < count)
+            {
+                error.Trace($"Requested {count} pull requests, but only {pullRequests.Count} were received.");
+            }
 
             var outputFile = "pull-requests.json";
-            Console.WriteLine($"Writing output to {outputFile} ...");
-            await outputFileStore.WriteFileAsync(
-                filename: outputFile,
-                content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented));
-            Console.WriteLine("Done.");
-            Console.WriteLine();
+            await info.TraceOperation(
+                $"Writing output to {outputFile} ...",
+                () => outputFileStore.WriteFileAsync(
+                    filename: outputFile,
+                    content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented)));
+
+            // Get info for each pull request
+            foreach (var id in pullRequests.Select(x => x.PullRequestId))
+            {
+                outputFile = $"{id.ToString()}.json";
+                if (outputFileStore.Contains(outputFile))
+                {
+                    info.Trace($"{outputFile} already exists. Skipping call to the API.");
+                }
+                else
+                {
+                    var pr = await info.TraceOperation(
+                        $"Fetching pull request {id.ToString()} ...",
+                        () => restClient.GetPullRequestAsync(
+                            project,
+                            repository,
+                            id));
+
+                    await info.TraceOperation(
+                        $"Writing output to {outputFile} ...",
+                        () => outputFileStore.WriteFileAsync(
+                            filename: outputFile,
+                            content: JsonConvert.SerializeObject(pr, Formatting.Indented)));
+                }
+            }
         }
     }
 }
