@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using CommandLine;
@@ -35,7 +36,8 @@ namespace FetchPullRequestData
                         gitClient: connection.GetClient<GitHttpClient>(),
                         outputFileStore: new DataFileStore(outputDirectory));
 
-                    await dataClient.FetchDataFilesAsync(
+                    await FetchDataFilesAsync(
+                        dataClient,
                         project: options.Project,
                         repository: options.Repository,
                         count: options.Count);
@@ -47,6 +49,23 @@ namespace FetchPullRequestData
                     // ParseArguments will already print an error message when failing to parse
                     return Task.FromResult(1);
                 });
+        }
+
+        static async Task FetchDataFilesAsync(
+            DataClient dataClient,
+            string project,
+            string repository,
+            int count)
+        {
+            var pullRequests = await dataClient.FetchPullRequestsAsync(
+                project,
+                repository,
+                count);
+
+            await dataClient.FetchIterationsAsync(
+                project,
+                repository,
+                pullRequests.Select(x => x.PullRequestId));
         }
     }
 }

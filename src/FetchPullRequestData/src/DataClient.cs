@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.TeamFoundation.SourceControl.WebApi;
@@ -12,23 +12,25 @@ namespace FetchPullRequestData
         private readonly GitHttpClient gitClient;
         private readonly DataFileStore outputFileStore;
 
+        private readonly Tracer info;
+        private readonly Tracer error;
+
         public DataClient(
             GitHttpClient gitClient,
-            DataFileStore outputFileStore
-        )
+            DataFileStore outputFileStore)
         {
             this.gitClient = gitClient;
             this.outputFileStore = outputFileStore;
+
+            info = new Tracer(Console.WriteLine);
+            error = new Tracer(Console.Error.WriteLine);
         }
 
-        public async Task FetchDataFilesAsync(
+        public async Task<List<GitPullRequest>> FetchPullRequestsAsync(
             string project,
             string repository,
             int count)
         {
-            var info = new Tracer(Console.WriteLine);
-            var error = new Tracer(Console.Error.WriteLine);
-
             // Get the list of all pull requests
             var pullRequests = await info.TraceOperation(
                 $"Fetching {count} pull requests for repository {repository} ...",
@@ -54,10 +56,18 @@ namespace FetchPullRequestData
                     filename: outputFile,
                     content: JsonConvert.SerializeObject(pullRequests, Formatting.Indented)));
 
+            return pullRequests;
+        }
+
+        public async Task FetchIterationsAsync(
+            string project,
+            string repository,
+            IEnumerable<int> pullRequestIds)
+        {
             // Get info for each pull request
-            foreach (var id in pullRequests.Select(x => x.PullRequestId))
+            foreach (var id in pullRequestIds)
             {
-                outputFile = $"{id.ToString()}-iterations.json";
+                var outputFile = $"{id.ToString()}-iterations.json";
                 if (outputFileStore.Contains(outputFile))
                 {
                     info.Trace($"{outputFile} already exists. Skipping call to the API.");
