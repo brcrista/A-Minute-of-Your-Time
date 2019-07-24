@@ -39,7 +39,7 @@ namespace FetchPullRequestData
                     await FetchDataFilesAsync(
                         dataClient,
                         project: options.Project,
-                        repository: options.Repository,
+                        repositoryId: options.Repository,
                         count: options.Count);
 
                     return 0;
@@ -54,18 +54,28 @@ namespace FetchPullRequestData
         static async Task FetchDataFilesAsync(
             DataClient dataClient,
             string project,
-            string repository,
+            string repositoryId,
             int count)
         {
+            // Fetch the list of PRs
             var pullRequests = await dataClient.FetchPullRequestsAsync(
                 project,
-                repository,
+                repositoryId,
                 count);
 
-            await dataClient.FetchIterationsAsync(
-                project,
-                repository,
-                pullRequests.Select(x => x.PullRequestId));
+            // Fetch additional information for each PR
+            foreach (var pr in pullRequests)
+            {
+                await dataClient.FetchIterationsAsync(
+                    project,
+                    repositoryId,
+                    pr);
+
+                await dataClient.FetchPullRequestChangesAsync(
+                    project,
+                    repositoryId,
+                    pr);
+            }
         }
     }
 }

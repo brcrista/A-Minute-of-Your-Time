@@ -28,15 +28,15 @@ namespace FetchPullRequestData
 
         public async Task<List<GitPullRequest>> FetchPullRequestsAsync(
             string project,
-            string repository,
+            string repositoryId,
             int count)
         {
             // Get the list of all pull requests
             var pullRequests = await info.TraceOperation(
-                $"Fetching {count} pull requests for repository {repository} ...",
+                $"Fetching {count} pull requests for repository {repositoryId} ...",
                 () => gitClient.GetPullRequestsAsync(
                     project,
-                    repository,
+                    repositoryId,
                     searchCriteria: new GitPullRequestSearchCriteria
                     {
                         Status = PullRequestStatus.Completed,
@@ -61,32 +61,60 @@ namespace FetchPullRequestData
 
         public async Task FetchIterationsAsync(
             string project,
-            string repository,
-            IEnumerable<int> pullRequestIds)
+            string repositoryId,
+            GitPullRequest pullRequest)
         {
-            // Get info for each pull request
-            foreach (var id in pullRequestIds)
+            var pullRequestId = pullRequest.PullRequestId;
+            var outputFile = $"{pullRequestId.ToString()}-iterations.json";
+
+            if (outputFileStore.Contains(outputFile))
             {
-                var outputFile = $"{id.ToString()}-iterations.json";
-                if (outputFileStore.Contains(outputFile))
-                {
-                    info.Trace($"{outputFile} already exists. Skipping call to the API.");
-                }
-                else
-                {
-                    var iterations = await info.TraceOperation(
-                        $"Fetching pull request {id.ToString()} ...",
-                        () => gitClient.GetPullRequestIterationsAsync(
-                            project,
-                            repository,
-                            id));
+                info.Trace($"{outputFile} already exists. Skipping call to the API.");
+            }
+            else
+            {
+                var iterations = await info.TraceOperation(
+                    $"Fetching iterations for pull request {pullRequestId.ToString()} ...",
+                    () => gitClient.GetPullRequestIterationsAsync(
+                        project,
+                        repositoryId,
+                        pullRequestId));
+
+                await info.TraceOperation(
+                    $"Writing output to {outputFile} ...",
+                    () => outputFileStore.WriteFileAsync(
+                        filename: outputFile,
+                        content: JsonConvert.SerializeObject(iterations, Formatting.Indented)));
+            }
+        }
+
+        public async Task FetchPullRequestChangesAsync(
+            string project,
+            string repositoryId,
+            GitPullRequest pullRequest)
+        {
+            var pullRequestId = pullRequest.PullRequestId;
+            var outputFile = $"{pullRequestId.ToString()}-changes.json";
+
+            if (outputFileStore.Contains(outputFile))
+            {
+                info.Trace($"{outputFile} already exists. Skipping call to the API.");
+            }
+            else
+            {
+                var mergeCommitId = pullRequest.LastMergeCommit.CommitId;
+                var changes = await info.TraceOperation(
+                    $"Fetching changes for commit {mergeCommitId.ToString()} ...",
+                    () => gitClient.GetChangesAsync(
+                        project,
+                        commitId: mergeCommitId,
+                        repositoryId: repositoryId));
 
                     await info.TraceOperation(
                         $"Writing output to {outputFile} ...",
                         () => outputFileStore.WriteFileAsync(
                             filename: outputFile,
-                            content: JsonConvert.SerializeObject(iterations, Formatting.Indented)));
-                }
+                            content: JsonConvert.SerializeObject(changes, Formatting.Indented)));
             }
         }
     }
