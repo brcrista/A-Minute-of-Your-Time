@@ -1,7 +1,10 @@
 import dateutil
+import functools
 import json
+import os
 
 import faker
+import numpy as np
 import pandas as pd
 
 from . import text_helpers
@@ -22,7 +25,7 @@ _fake_authors = {}
 _faker = faker.Faker()
 
 # Create a data frame of pull requests
-def _get_data_from_pull_request(pull_request):
+def _get_data_from_pull_request(data_directory, pull_request):
     """
     Extract the information we want to process from a pull request API object.
     """
@@ -34,12 +37,24 @@ def _get_data_from_pull_request(pull_request):
         fake_author = _faker.name()
         _fake_authors[real_author] = fake_author
 
+    # Load iterations
+    pull_request_id = pull_request['pullRequestId']
+
+    # See if we have a data file for iterations; otherwise use NaN
+    # For the filename format, see the FetchPullRequestData tool
+    iterations_filename = f'{pull_request_id}-iterations.json'
+    try:
+        iterations = _read_json_file(os.path.join(data_directory, iterations_filename))
+    except FileNotFoundError:
+        iterations = None
+
     return [
-        pull_request['pullRequestId'], # id
+        pull_request_id, # id
         fake_author, # author
         dateutil.parser.parse(pull_request['creationDate']), # created_time
         dateutil.parser.parse(pull_request['closedDate']), # merged_time
-        len(pull_request['reviewers']) # num_reviewers
+        len(pull_request['reviewers']), # num_reviewers
+        len(iterations) if iterations else np.NaN # num_iterations
     ]
 
 def load_data(filepath):
@@ -48,9 +63,13 @@ def load_data(filepath):
     """
     pull_requests_json = _read_json_file(filepath)
 
+    get_data = functools.partial(
+        _get_data_from_pull_request,
+        os.path.dirname(filepath))
+
     pull_requests = pd.DataFrame(
-        [_get_data_from_pull_request(pr) for pr in pull_requests_json],
-        columns=['id', 'author', 'created_time', 'merged_time', 'num_reviewers'])
+        [get_data(pr) for pr in pull_requests_json],
+        columns=['id', 'author', 'created_time', 'merged_time', 'num_reviewers', 'num_iterations'])
 
     # Add a column for wall-clock time to complete
     pull_requests['ttl'] = pull_requests['merged_time'] - pull_requests['created_time']
