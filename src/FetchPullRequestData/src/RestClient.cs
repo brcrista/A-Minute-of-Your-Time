@@ -40,10 +40,10 @@ namespace FetchPullRequestData
                 top: count);
         }
 
-        public Task<GitPullRequest> GetPullRequestAsync(string project, string repository, int pullRequestId)
+        public Task<List<GitPullRequestIteration>> GetPullRequestIterationsAsync(string project, string repository, int pullRequestId)
         {
             var httpClient = connection.GetClient<GitHttpClient>();
-            return httpClient.GetPullRequestAsync(
+            return httpClient.GetPullRequestIterationsAsync(
                 project,
                 repository,
                 pullRequestId);

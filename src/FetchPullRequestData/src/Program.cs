@@ -77,16 +77,16 @@ namespace FetchPullRequestData
             // Get info for each pull request
             foreach (var id in pullRequests.Select(x => x.PullRequestId))
             {
-                outputFile = $"{id.ToString()}.json";
+                outputFile = $"{id.ToString()}-iterations.json";
                 if (outputFileStore.Contains(outputFile))
                 {
                     info.Trace($"{outputFile} already exists. Skipping call to the API.");
                 }
                 else
                 {
-                    var pr = await info.TraceOperation(
+                    var iterations = await info.TraceOperation(
                         $"Fetching pull request {id.ToString()} ...",
-                        () => restClient.GetPullRequestAsync(
+                        () => restClient.GetPullRequestIterationsAsync(
                             project,
                             repository,
                             id));
@@ -95,7 +95,7 @@ namespace FetchPullRequestData
                         $"Writing output to {outputFile} ...",
                         () => outputFileStore.WriteFileAsync(
                             filename: outputFile,
-                            content: JsonConvert.SerializeObject(pr, Formatting.Indented)));
+                            content: JsonConvert.SerializeObject(iterations, Formatting.Indented)));
                 }
             }
         }
