@@ -18,11 +18,18 @@ def _ensure_camel(s):
     return s if text_helpers.iscamel(s) or s in allowed_names else text_helpers.camel(s)
 
 def _read_json_file(filepath):
-    with open(filepath, 'r', encoding='utf-8') as pull_requests_json_file:
-        return json.load(pull_requests_json_file, object_hook=lambda d: text_helpers.remap_keys(_ensure_camel, d))
+    try:
+        with open(filepath, 'r', encoding='utf-8') as pull_requests_json_file:
+            return json.load(pull_requests_json_file, object_hook=lambda d: text_helpers.remap_keys(_ensure_camel, d))
+    except FileNotFoundError:
+        return None
 
 _fake_authors = {}
 _faker = faker.Faker()
+
+def _files_changed(change_jobject):
+    change_list = change_jobject['changes']
+    return [x for x in change_list if x['item']['gitObjectType'] == 3]
 
 # Create a data frame of pull requests
 def _get_data_from_pull_request(data_directory, pull_request):
@@ -42,11 +49,15 @@ def _get_data_from_pull_request(data_directory, pull_request):
 
     # See if we have a data file for iterations; otherwise use NaN
     # For the filename format, see the FetchPullRequestData tool
-    iterations_filename = f'{pull_request_id}-iterations.json'
-    try:
-        iterations = _read_json_file(os.path.join(data_directory, iterations_filename))
-    except FileNotFoundError:
-        iterations = None
+    iterations_filename = os.path.join(data_directory, f'{pull_request_id}-iterations.json')
+    iterations = _read_json_file(iterations_filename)
+    num_iterations = len(iterations) if iterations else np.NaN
+
+    # See if we have a data file for changes; otherwise use NaN
+    # For the filename format, see the FetchPullRequestData tool
+    changes_filename = os.path.join(data_directory, f'{pull_request_id}-changes.json')
+    changes = _read_json_file(changes_filename)
+    num_files_changed = len(_files_changed(changes)) if changes else np.NaN
 
     return [
         pull_request_id, # id
@@ -54,7 +65,8 @@ def _get_data_from_pull_request(data_directory, pull_request):
         dateutil.parser.parse(pull_request['creationDate']), # created_time
         dateutil.parser.parse(pull_request['closedDate']), # merged_time
         len(pull_request['reviewers']), # num_reviewers
-        len(iterations) if iterations else np.NaN # num_iterations
+        num_iterations, # num_iterations
+        num_files_changed # num_files_changed
     ]
 
 def load_data(filepath):
@@ -69,7 +81,7 @@ def load_data(filepath):
 
     pull_requests = pd.DataFrame(
         [get_data(pr) for pr in pull_requests_json],
-        columns=['id', 'author', 'created_time', 'merged_time', 'num_reviewers', 'num_iterations'])
+        columns=['id', 'author', 'created_time', 'merged_time', 'num_reviewers', 'num_iterations', 'num_files_changed'])
 
     # Add a column for wall-clock time to complete
     pull_requests['ttl'] = pull_requests['merged_time'] - pull_requests['created_time']
