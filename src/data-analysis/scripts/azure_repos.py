@@ -4,6 +4,7 @@ import json
 import os
 
 import faker
+import numpy as np
 import pandas as pd
 
 from . import text_helpers
@@ -53,7 +54,7 @@ def _get_data_from_pull_request(data_directory, pull_request):
         dateutil.parser.parse(pull_request['creationDate']), # created_time
         dateutil.parser.parse(pull_request['closedDate']), # merged_time
         len(pull_request['reviewers']), # num_reviewers
-        len(iterations) if iterations else pd.NaN # num_iterations
+        len(iterations) if iterations else np.NaN # num_iterations
     ]
 
 def load_data(filepath):
