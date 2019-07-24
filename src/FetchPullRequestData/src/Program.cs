@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
 using CommandLine;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.VisualStudio.Services.WebApi;
 using Newtonsoft.Json;
 
 namespace FetchPullRequestData
@@ -21,9 +25,13 @@ namespace FetchPullRequestData
             return await parserResult.MapResult(
                 async options =>
                 {
-                    var restClient = new RestClient(
-                        organizationUri: new Uri(options.Url, UriKind.Absolute),
-                        pat: options.PersonalAccessToken);
+                    var connection = new VssConnection(
+                        baseUrl: new Uri(options.Url, UriKind.Absolute),
+                        credentials: new VssBasicCredential(
+                            userName: string.Empty,
+                            password: options.PersonalAccessToken ?? string.Empty));
+
+                    var restClient = connection.GetClient<GitHttpClient>();
 
                     var outputDirectory = options.OutputDirectory ?? CommandLineOptions.DefaultOutputDirectory;
                     var outputFileStore = new DataFileStore(outputDirectory);
@@ -45,7 +53,7 @@ namespace FetchPullRequestData
         }
 
         private static async Task FetchDataFilesAsync(
-            RestClient restClient,
+            GitHttpClient restClient,
             DataFileStore outputFileStore,
             string project,
             string repository,
@@ -60,7 +68,12 @@ namespace FetchPullRequestData
                 () => restClient.GetPullRequestsAsync(
                     project,
                     repository,
-                    count));
+                    searchCriteria: new GitPullRequestSearchCriteria
+                    {
+                        Status = PullRequestStatus.Completed,
+                        TargetRefName = "refs/heads/master"
+                    },
+                    top: count));
 
             if (pullRequests.Count < count)
             {
