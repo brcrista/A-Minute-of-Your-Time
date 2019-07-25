@@ -3,6 +3,7 @@ data/
 # Python
 .ipynb_checkpoints/
 .pytest_cache/
+__pycache__/
 *.nbconvert.ipynb
 *.pyc
 

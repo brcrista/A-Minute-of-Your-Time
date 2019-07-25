@@ -1,4 +1,4 @@
-from scripts.text_helpers import camel, iscamel, remap_keys
+from ..text_helpers import camel, iscamel, remap_keys
 
 def test_iscamel():
     assert iscamel('a')
