@@ -55,6 +55,13 @@ cd src/data-analysis
 jupyter lab data-analysis.ipynb
 ```
 
+### Make predictions with the model
+
+```
+cd src/model
+python predict_pull_request.py <number of files changed> <number of assigned reviewers>
+```
+
 ## TODO
 - [x] Make a tool to get data from the Azure Repos REST API
 - [x] Write a script to process this data to be consumed from Python
