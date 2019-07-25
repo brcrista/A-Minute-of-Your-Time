@@ -26,7 +26,7 @@ jobs:
 
   - script: |
       source activate a-minute-of-your-time
-      pytest src/data-analysis --junitxml=junit/test-results.xml
+      pytest src/import_data --junitxml=junit/test-results.xml
     displayName: Test data analysis scripts
 
   - task: PublishTestResults@2
